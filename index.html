@@ -604,7 +604,7 @@ function renderHome() {
 renderHome();
 
 // ── CLAUDE API ──
-const API = 'https://api.anthropic.com/v1/messages';
+const API = '/api/claude';
 async function claude(prompt, maxTokens = 900) {
   const res = await fetch(API, {
     method: 'POST',
