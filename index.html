@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="DevLife"/>
+<link rel="manifest" href="manifest.json"/>
+<title>DevLife — Your Daily System</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #13131a;
+  --surface2: #1c1c27;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text2: #8888a0;
+  --text3: #55556a;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --green: #4ade80;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --mono: 'Space Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --r: 12px;
+  --r2: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+/* NAV */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; cursor: pointer; border: none; background: transparent; color: var(--text3); font-size: 9px; font-family: var(--sans); letter-spacing: 0.3px; transition: color 0.2s; }
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { width: 20px; height: 20px; }
+
+/* TOP BAR */
+.topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 99; padding: 16px 20px 12px; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.topbar-title { font-family: var(--mono); font-size: 14px; color: var(--accent); letter-spacing: 1px; }
+.topbar-sub { font-size: 11px; color: var(--text3); }
+
+/* PAGES */
+.page { display: none; padding: 80px 16px 90px; min-height: 100vh; }
+.page.active { display: block; }
+
+/* CARDS */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
+.card-accent { border-left: 2px solid var(--accent); }
+
+/* SECTION LABEL */
+.label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-family: var(--mono); }
+
+/* STATS GRID */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; }
+.stat-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.stat-val { font-size: 22px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+.stat-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--border2); border-radius: var(--r2); padding: 9px 16px; font-size: 13px; cursor: pointer; color: var(--text); font-family: var(--sans); transition: all 0.15s; }
+.btn:active { transform: scale(0.97); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* INPUTS */
+.input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r2); padding: 10px 12px; font-size: 14px; color: var(--text); font-family: var(--sans); outline: none; margin-bottom: 8px; }
+.input:focus { border-color: var(--accent); }
+select.input { cursor: pointer; }
+textarea.input { resize: vertical; min-height: 80px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* BADGES */
+.badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-family: var(--mono); }
+.badge-purple { background: rgba(108,99,255,0.15); color: var(--purple); }
+.badge-green { background: rgba(74,222,128,0.12); color: var(--green); }
+.badge-amber { background: rgba(251,191,36,0.12); color: var(--amber); }
+.badge-red { background: rgba(248,113,113,0.12); color: var(--red); }
+.badge-blue { background: rgba(96,165,250,0.12); color: var(--blue); }
+
+/* TABS */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 2px; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; color: var(--text2); background: transparent; white-space: nowrap; font-family: var(--sans); transition: all 0.15s; }
+.tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* AI OUTPUT */
+.ai-out { font-size: 13px; color: var(--text2); background: var(--surface2); border-radius: var(--r2); padding: 14px; margin-top: 10px; line-height: 1.75; white-space: pre-wrap; display: none; border: 1px solid var(--border); }
+
+/* QUIZ */
+.q-option { display: block; width: 100%; text-align: left; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r2); padding: 11px 14px; margin-bottom: 8px; font-size: 14px; cursor: pointer; color: var(--text); font-family: var(--sans); transition: border-color 0.15s; }
+.q-option:active { transform: scale(0.99); }
+.q-option.correct { background: rgba(74,222,128,0.1); border-color: var(--green); color: var(--green); }
+.q-option.wrong { background: rgba(248,113,113,0.1); border-color: var(--red); color: var(--red); }
+
+/* XP BAR */
+.xp-wrap { margin-bottom: 16px; }
+.xp-bar { height: 4px; background: var(--surface2); border-radius: 2px; }
+.xp-fill { height: 4px; background: var(--accent); border-radius: 2px; transition: width 0.5s; }
+.xp-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text3); margin-bottom: 6px; font-family: var(--mono); }
+
+/* INVESTMENT */
+.inv-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; margin-bottom: 8px; }
+.inv-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.inv-meta { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ALLOC BAR */
+.alloc-row { margin-bottom: 10px; }
+.alloc-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+.alloc-bar { height: 6px; background: var(--surface2); border-radius: 3px; }
+.alloc-fill { height: 6px; border-radius: 3px; }
+
+/* PILLAR CARDS */
+.pillars { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.pillar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; cursor: pointer; transition: border-color 0.15s; }
+.pillar.active { border-color: var(--accent); }
+.pillar-icon { font-size: 22px; margin-bottom: 6px; }
+.pillar-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.pillar-xp { font-size: 11px; color: var(--accent); margin-top: 4px; font-family: var(--mono); }
+
+/* TIME BLOCKS */
+.time-block { display: flex; gap: 10px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.time-block:last-child { border-bottom: none; }
+.time-tag { font-size: 11px; color: var(--text3); min-width: 60px; font-family: var(--mono); padding-top: 2px; }
+.block-body { flex: 1; }
+.block-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.block-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.check { width: 20px; height: 20px; border-radius: 6px; border: 1px solid var(--border2); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; transition: all 0.15s; }
+.check.done { background: rgba(74,222,128,0.15); border-color: var(--green); color: var(--green); }
+
+/* CAREER */
+.app-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 12px 14px; margin-bottom: 8px; }
+.app-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.app-meta { font-size: 12px; color: var(--text2); }
+
+/* SIP RESULT */
+.sip-result { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 14px 0; }
+.sip-stat { background: var(--surface2); border-radius: var(--r2); padding: 10px; text-align: center; }
+.sip-val { font-size: 15px; font-weight: 600; font-family: var(--mono); color: var(--text); }
+.sip-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
+
+/* SLIDER */
+.slider-wrap { margin-bottom: 14px; }
+.slider-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.slider-val { font-family: var(--mono); color: var(--accent); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+
+/* MOOD BTNS */
+.mood-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.mood-btn { font-size: 12px; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); cursor: pointer; background: transparent; color: var(--text2); font-family: var(--sans); }
+.mood-btn.sel { background: rgba(108,99,255,0.15); border-color: var(--accent); color: var(--accent); }
+
+/* TIP CARD */
+.tip { background: var(--surface); border: 1px solid var(--border); border-left: 2px solid var(--accent); border-radius: var(--r); padding: 12px 14px; margin-bottom: 10px; }
+.tip-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.tip-body { font-size: 12px; color: var(--text2); line-height: 1.7; }
+
+/* HOME */
+.home-hero { text-align: center; padding: 20px 0 24px; }
+.home-title { font-family: var(--mono); font-size: 28px; color: var(--text); letter-spacing: -0.5px; }
+.home-title span { color: var(--accent); }
+.home-sub { font-size: 14px; color: var(--text2); margin-top: 6px; }
+.goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: border-color 0.15s; }
+.goal-card:active { border-color: var(--accent); }
+.goal-icon { font-size: 24px; flex-shrink: 0; }
+.goal-info { flex: 1; }
+.goal-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.goal-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.goal-arrow { color: var(--text3); font-size: 18px; }
+.streak-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+.streak-info { }
+.streak-num { font-family: var(--mono); font-size: 28px; color: var(--amber); }
+.streak-label { font-size: 12px; color: var(--text2); }
+.install-banner { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.3); border-radius: var(--r); padding: 12px 14px; margin-bottom: 16px; display: none; }
+.install-banner-text { font-size: 13px; color: var(--text); margin-bottom: 8px; }
+
+/* EMPTY */
+.empty { text-align: center; padding: 2rem 0; font-size: 13px; color: var(--text3); }
+
+/* PROGRESS */
+.prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.prog-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; }
+.prog-fill { height: 4px; background: var(--green); border-radius: 2px; transition: width 0.4s; }
+.prog-label { font-size: 11px; color: var(--text3); font-family: var(--mono); min-width: 35px; text-align: right; }
+
+@media(min-width:600px){
+  .page { max-width: 600px; margin: 0 auto; }
+  .pillars { grid-template-columns: repeat(4,1fr); }
+  .stats { grid-template-columns: repeat(4,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div>
+    <div class="topbar-title">DEV_LIFE</div>
+  </div>
+  <div id="topbarRight" class="topbar-sub">Your daily system</div>
+</div>
+
+<!-- PAGES -->
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-text">📱 Install DevLife on your home screen for one-tap access!</div>
+    <button class="btn btn-accent btn-sm" id="installBtn">Install App</button>
+  </div>
+  <div class="home-hero">
+    <div class="home-title">Your <span>Daily</span> System</div>
+    <div class="home-sub">5 goals. One place. Every day.</div>
+  </div>
+  <div class="streak-bar">
+    <div class="streak-info">
+      <div class="streak-num" id="home-streak">0</div>
+      <div class="streak-label">day streak 🔥</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:22px;font-family:var(--mono);color:var(--accent)" id="home-xp">0</div>
+      <div style="font-size:12px;color:var(--text2)">total XP</div>
+    </div>
+  </div>
+  <div class="goal-card" onclick="goTo('quiz')">
+    <div class="goal-icon">🧠</div>
+    <div class="goal-info">
+      <div class="goal-name">.NET Quiz</div>
+      <div class="goal-desc">Test your basics — C#, ASP.NET, EF, LINQ</div>
+    </div>
+    <div class="goal-arrow">›</div>
+  </div>
+  <div class="goal-card" onclick="goTo('growth')">
+    <div class="goal-icon">📈</div>
+    <div class="goal-info">
+      <div class="goal-name">Daily Growth</div>
+      <div class="goal-desc">DSA, system design, clean code, analytical</div>
+    </div>
+    <div class="goal-arrow">›</div>
+  </div>
+  <div class="goal-card" onclick="goTo('career')">
+    <div class="goal-icon">💼</div>
+    <div class="goal-info">
+      <div class="goal-name">Career Tracker</div>
+      <div class="goal-desc">Jobs, freelance, applications, interview prep</div>
+    </div>
+    <div class="goal-arrow">›</div>
+  </div>
+  <div class="goal-card" onclick="goTo('weekend')">
+    <div class="goal-icon">🎵</div>
+    <div class="goal-info">
+      <div class="goal-name">Weekend Planner</div>
+      <div class="goal-desc">Music, vocal, communication, creative</div>
+    </div>
+    <div class="goal-arrow">›</div>
+  </div>
+  <div class="goal-card" onclick="goTo('invest')">
+    <div class="goal-icon">📊</div>
+    <div class="goal-info">
+      <div class="goal-name">Investments</div>
+      <div class="goal-desc">Portfolio, SIP calculator, AI planner</div>
+    </div>
+    <div class="goal-arrow">›</div>
+  </div>
+</div>
+
+<!-- QUIZ PAGE -->
+<div class="page" id="page-quiz">
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Question</div><div class="stat-val" id="q-num">—</div></div>
+    <div class="stat"><div class="stat-label">Score</div><div class="stat-val" id="q-score">0</div></div>
+    <div class="stat"><div class="stat-label">Correct</div><div class="stat-val" id="q-correct">0</div></div>
+    <div class="stat"><div class="stat-label">Topic</div><div class="stat-val" id="q-topic" style="font-size:12px;padding-top:6px;">—</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="setQuizTab('all',this)">All topics</button>
+    <button class="tab" onclick="setQuizTab('csharp',this)">C#</button>
+    <button class="tab" onclick="setQuizTab('aspnet',this)">ASP.NET</button>
+    <button class="tab" onclick="setQuizTab('ef',this)">Entity Framework</button>
+  </div>
+  <div id="quizArea"><div class="empty">Tap "New Question" to start your quiz session.</div></div>
+  <div class="btn-row" style="margin-top:14px;">
+    <button class="btn btn-accent" onclick="fetchQuizQuestion()">New Question</button>
+    <button class="btn" onclick="showQuizHistory()">History</button>
+  </div>
+</div>
+
+<!-- GROWTH PAGE -->
+<div class="page" id="page-growth">
+  <div class="xp-wrap">
+    <div class="xp-labels"><span>Level <span id="g-level">1</span></span><span id="g-xplabel">0 / 100 XP</span></div>
+    <div class="xp-bar"><div class="xp-fill" id="g-xpfill" style="width:0%"></div></div>
+  </div>
+  <div class="pillars" id="growthPillars">
+    <div class="pillar active" onclick="selectPillar(0,this)" id="gp0">
+      <div class="pillar-icon">🧮</div>
+      <div class="pillar-name">DSA & Logic</div>
+      <div class="pillar-xp" id="gpxp0">0 XP</div>
+    </div>
+    <div class="pillar" onclick="selectPillar(1,this)" id="gp1">
+      <div class="pillar-icon">🏗️</div>
+      <div class="pillar-name">System Design</div>
+      <div class="pillar-xp" id="gpxp1">0 XP</div>
+    </div>
+    <div class="pillar" onclick="selectPillar(2,this)" id="gp2">
+      <div class="pillar-icon">✨</div>
+      <div class="pillar-name">Clean Code</div>
+      <div class="pillar-xp" id="gpxp2">0 XP</div>
+    </div>
+    <div class="pillar" onclick="selectPillar(3,this)" id="gp3">
+      <div class="pillar-icon">🔬</div>
+      <div class="pillar-name">Analytical</div>
+      <div class="pillar-xp" id="gpxp3">0 XP</div>
+    </div>
+  </div>
+  <div id="growthChallenge"><div class="empty">Select a pillar to get today's challenge.</div></div>
+  <div class="card" style="margin-top:12px;">
+    <div class="label">Daily Reflection</div>
+    <textarea class="input" id="g-reflect" placeholder="What did you learn or build today?"></textarea>
+    <button class="btn btn-accent" onclick="submitGrowthReflect()">Submit (+10 XP) ↗</button>
+    <div class="ai-out" id="g-reflect-out"></div>
+  </div>
+</div>
+
+<!-- CAREER PAGE -->
+<div class="page" id="page-career">
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Applied</div><div class="stat-val" id="c-total">0</div></div>
+    <div class="stat"><div class="stat-label">Interviews</div><div class="stat-val" id="c-interview">0</div></div>
+    <div class="stat"><div class="stat-label">Offers</div><div class="stat-val" id="c-offer">0</div></div>
+    <div class="stat"><div class="stat-label">Freelance</div><div class="stat-val" id="c-freelance">0</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showCareerTab('list',this)">Applications</button>
+    <button class="tab" onclick="showCareerTab('add',this)">+ Add</button>
+    <button class="tab" onclick="showCareerTab('email',this)">Email AI</button>
+    <button class="tab" onclick="showCareerTab('prep',this)">Interview Prep</button>
+  </div>
+  <div id="career-list">
+    <div id="appList"><div class="empty">No applications yet. Tap "+ Add" to log your first one.</div></div>
+  </div>
+  <div id="career-add" style="display:none;">
+    <div class="card">
+      <div class="label">Log Application</div>
+      <input class="input" id="c-company" placeholder="Company / Client"/>
+      <input class="input" id="c-role" placeholder="Role / Project"/>
+      <div class="row2">
+        <select class="input" id="c-type"><option>Full-time</option><option>Freelance</option></select>
+        <select class="input" id="c-status"><option>Applied</option><option>Interview</option><option>Offer</option><option>Rejected</option></select>
+      </div>
+      <input class="input" id="c-location" placeholder="Location / Remote"/>
+      <input class="input" id="c-salary" placeholder="Expected salary (optional)"/>
+      <textarea class="input" id="c-notes" placeholder="Notes, JD link, recruiter name..."></textarea>
+      <button class="btn btn-accent" onclick="addCareerApp()">Save</button>
+    </div>
+  </div>
+  <div id="career-email" style="display:none;">
+    <div class="card">
+      <div class="label">Email Analyser</div>
+      <textarea class="input" id="email-text" placeholder="Paste recruiter / client email here..." rows="6"></textarea>
+      <select class="input" id="email-action">
+        <option value="analyse">Analyse — what does this mean?</option>
+        <option value="reply-interest">Draft reply — I'm interested</option>
+        <option value="reply-negotiate">Draft reply — negotiate salary</option>
+        <option value="reply-followup">Follow-up — no reply in a week</option>
+        <option value="reply-decline">Polite decline</option>
+      </select>
+      <button class="btn btn-accent" onclick="runEmailAI()">Analyse ↗</button>
+      <div class="ai-out" id="email-out"></div>
+    </div>
+  </div>
+  <div id="career-prep" style="display:none;">
+    <div class="card">
+      <div class="label">Interview Prep</div>
+      <input class="input" id="prep-role" placeholder="Role (e.g. Senior .NET Developer)"/>
+      <select class="input" id="prep-type">
+        <option value="technical">Technical questions</option>
+        <option value="behavioral">Behavioural / HR</option>
+        <option value="system">System design</option>
+        <option value="salary">Salary negotiation scripts</option>
+      </select>
+      <button class="btn btn-accent" onclick="runPrepAI()">Generate ↗</button>
+      <div class="ai-out" id="prep-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKEND PAGE -->
+<div class="page" id="page-weekend">
+  <div class="prog-row">
+    <div class="prog-bar"><div class="prog-fill" id="w-progfill" style="width:0%"></div></div>
+    <div class="prog-label" id="w-proglabel">0/8</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showWeekTab('schedule',this)">Schedule</button>
+    <button class="tab" onclick="showWeekTab('exercises',this)">Exercises</button>
+    <button class="tab" onclick="showWeekTab('aiplan',this)">AI Plan</button>
+    <button class="tab" onclick="showWeekTab('journal',this)">Journal</button>
+  </div>
+  <div id="week-schedule">
+    <div class="card" id="scheduleCard"></div>
+    <button class="btn btn-accent" style="margin-top:4px;" onclick="generateWeekSchedule()">Regenerate with AI ↗</button>
+    <div class="ai-out" id="week-sched-out"></div>
+  </div>
+  <div id="week-exercises" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" onclick="showExTab('music',this)">🎵 Music</button>
+      <button class="tab" onclick="showExTab('comm',this)">🗣 Speaking</button>
+      <button class="tab" onclick="showExTab('creative',this)">🎨 Creative</button>
+    </div>
+    <div id="exList"></div>
+    <button class="btn btn-accent" onclick="generateExercise()">Generate new exercise ↗</button>
+    <div class="ai-out" id="ex-out"></div>
+  </div>
+  <div id="week-aiplan" style="display:none;">
+    <div class="card">
+      <div class="label">Custom Sunday Plan</div>
+      <div class="mood-row" id="moodRow">
+        <button class="mood-btn" onclick="pickMood(this,'energetic')">⚡ Energetic</button>
+        <button class="mood-btn" onclick="pickMood(this,'relaxed')">😌 Relaxed</button>
+        <button class="mood-btn" onclick="pickMood(this,'creative')">🎨 Creative</button>
+        <button class="mood-btn" onclick="pickMood(this,'focused')">🎯 Focused</button>
+        <button class="mood-btn" onclick="pickMood(this,'tired')">😴 Low energy</button>
+      </div>
+      <textarea class="input" id="aiplan-goals" placeholder="Any specific goals for this Sunday?"></textarea>
+      <button class="btn btn-accent" onclick="generateAIPlan()">Plan my Sunday ↗</button>
+      <div class="ai-out" id="aiplan-out"></div>
+    </div>
+  </div>
+  <div id="week-journal" style="display:none;">
+    <div class="card">
+      <div class="label">Sunday Reflection</div>
+      <textarea class="input" id="j-wins" placeholder="What did I enjoy or accomplish today?" rows="3"></textarea>
+      <textarea class="input" id="j-struggle" placeholder="What felt hard?" rows="2"></textarea>
+      <textarea class="input" id="j-next" placeholder="One thing to do differently next Sunday..." rows="2"></textarea>
+      <button class="btn btn-accent" onclick="submitJournal()">Get AI reflection ↗</button>
+      <div class="ai-out" id="journal-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- INVEST PAGE -->
+<div class="page" id="page-invest">
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Invested</div><div class="stat-val" id="i-invested">₹0</div></div>
+    <div class="stat"><div class="stat-label">Current</div><div class="stat-val" id="i-current">₹0</div><div class="stat-sub" id="i-gain">—</div></div>
+    <div class="stat"><div class="stat-label">Holdings</div><div class="stat-val" id="i-count">0</div></div>
+    <div class="stat"><div class="stat-label">Monthly SIP</div><div class="stat-val" id="i-sip">₹0</div></div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showInvestTab('portfolio',this)">Portfolio</button>
+    <button class="tab" onclick="showInvestTab('add',this)">+ Add</button>
+    <button class="tab" onclick="showInvestTab('sip',this)">SIP Calc</button>
+    <button class="tab" onclick="showInvestTab('plan',this)">AI Planner</button>
+    <button class="tab" onclick="showInvestTab('learn',this)">Learn</button>
+  </div>
+  <div id="invest-portfolio">
+    <div class="card" id="allocCard" style="display:none;"><div class="label">Allocation</div><div id="allocBars"></div></div>
+    <div id="invList"><div class="empty">No investments yet. Tap "+ Add" to start.</div></div>
+  </div>
+  <div id="invest-add" style="display:none;">
+    <div class="card">
+      <div class="label">Add Investment</div>
+      <input class="input" id="i-name" placeholder="Name (e.g. Mirae Asset Large Cap Fund)"/>
+      <div class="row2">
+        <select class="input" id="i-type"><option>Mutual Fund</option><option>Stock</option><option>FD</option><option>PPF</option></select>
+        <select class="input" id="i-mode"><option>SIP</option><option>Lumpsum</option></select>
+      </div>
+      <div class="row2">
+        <input class="input" id="i-amt" type="number" placeholder="Invested (₹)"/>
+        <input class="input" id="i-cur" type="number" placeholder="Current value (₹)"/>
+      </div>
+      <input class="input" id="i-monthly" type="number" placeholder="Monthly SIP (₹)"/>
+      <textarea class="input" id="i-notes" placeholder="Notes (goal, platform, maturity...)"></textarea>
+      <button class="btn btn-accent" onclick="addInvestment()">Save</button>
+    </div>
+  </div>
+  <div id="invest-sip" style="display:none;">
+    <div class="card">
+      <div class="label">SIP Calculator</div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>Monthly SIP</span><span class="slider-val" id="sip-amt-l">₹5,000</span></div>
+        <input type="range" min="500" max="100000" step="500" value="5000" id="sip-amt" oninput="calcSIP()"/>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>Annual return</span><span class="slider-val" id="sip-rate-l">12%</span></div>
+        <input type="range" min="4" max="24" step="1" value="12" id="sip-rate" oninput="calcSIP()"/>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>Duration</span><span class="slider-val" id="sip-yr-l">10 years</span></div>
+        <input type="range" min="1" max="40" step="1" value="10" id="sip-yr" oninput="calcSIP()"/>
+      </div>
+      <div class="sip-result">
+        <div class="sip-stat"><div class="sip-label">Invested</div><div class="sip-val" id="sip-inv">—</div></div>
+        <div class="sip-stat"><div class="sip-label">Returns</div><div class="sip-val" id="sip-ret" style="color:var(--green)">—</div></div>
+        <div class="sip-stat"><div class="sip-label">Total</div><div class="sip-val" id="sip-tot">—</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);" id="sip-sub"></div>
+    </div>
+  </div>
+  <div id="invest-plan" style="display:none;">
+    <div class="card">
+      <div class="label">AI Investment Planner</div>
+      <div class="row2">
+        <input class="input" id="p-income" type="number" placeholder="Monthly income (₹)"/>
+        <input class="input" id="p-expenses" type="number" placeholder="Monthly expenses (₹)"/>
+      </div>
+      <div class="row2">
+        <input class="input" id="p-age" type="number" placeholder="Your age"/>
+        <select class="input" id="p-risk"><option value="conservative">Conservative</option><option value="moderate" selected>Moderate</option><option value="aggressive">Aggressive</option></select>
+      </div>
+      <input class="input" id="p-goal" placeholder="Your financial goal"/>
+      <select class="input" id="p-action">
+        <option value="allocate">Build me an investment plan</option>
+        <option value="emergency">How much emergency fund do I need?</option>
+        <option value="tax">Tax saving strategies (80C, NPS, HRA)</option>
+        <option value="start">Step-by-step guide to start investing</option>
+      </select>
+      <button class="btn btn-accent" onclick="runInvestPlanner()">Get advice ↗</button>
+      <div class="ai-out" id="plan-out"></div>
+    </div>
+  </div>
+  <div id="invest-learn" style="display:none;">
+    <div class="tip"><div class="tip-title">The 50-30-20 rule</div><div class="tip-body">50% needs, 30% wants, 20% savings & investments. Even 10% invested consistently beats 30% irregular.</div></div>
+    <div class="tip"><div class="tip-title">SIP over lumpsum</div><div class="tip-body">SIPs use rupee cost averaging — more units when markets dip, fewer when high. Less stress, more discipline.</div></div>
+    <div class="tip"><div class="tip-title">PPF — the safe hero</div><div class="tip-body">~7.1% tax-free returns, government-backed, ₹1.5L/year, qualifies for 80C. Perfect debt bucket for beginners.</div></div>
+    <div class="tip"><div class="tip-title">Power of compounding</div><div class="tip-body">₹5,000/month at 12% for 20 years = ₹49.9L. Same for 30 years = ₹1.76 crores. Start now, not later.</div></div>
+    <div class="tip"><div class="tip-title">Emergency fund first</div><div class="tip-body">Build 3-6 months of expenses in a liquid fund before investing. Never redeem investments in a panic.</div></div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="nav-home" onclick="goTo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="nav-btn" id="nav-quiz" onclick="goTo('quiz')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Quiz
+  </button>
+  <button class="nav-btn" id="nav-growth" onclick="goTo('growth')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    Growth
+  </button>
+  <button class="nav-btn" id="nav-career" onclick="goTo('career')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+    Career
+  </button>
+  <button class="nav-btn" id="nav-invest" onclick="goTo('invest')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+    Invest
+  </button>
+</nav>
+
+<script>
+// ── STATE ──
+const S = JSON.parse(localStorage.getItem('devlife') || '{}');
+if (!S.xp) S.xp = 0;
+if (!S.level) S.level = 1;
+if (!S.streak) S.streak = 0;
+if (!S.pillarXP) S.pillarXP = [0,0,0,0];
+if (!S.quizHistory) S.quizHistory = [];
+if (!S.quizCorrect) S.quizCorrect = 0;
+if (!S.quizScore) S.quizScore = 0;
+if (!S.apps) S.apps = [];
+if (!S.investments) S.investments = [];
+if (!S.weekDone) S.weekDone = new Array(8).fill(false);
+if (!S.activePillar) S.activePillar = 0;
+if (!S.mood) S.mood = '';
+if (!S.lastDay) S.lastDay = '';
+
+const save = () => localStorage.setItem('devlife', JSON.stringify(S));
+
+// ── NAV ──
+let curPage = 'home';
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + (page === 'weekend' ? 'weekend' : page)).classList.add('active');
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  curPage = page;
+  if (page === 'home') renderHome();
+  if (page === 'invest') { calcSIP(); renderPortfolio(); }
+  if (page === 'weekend') renderSchedule();
+  if (page === 'career') renderApps();
+  if (page === 'growth') renderGrowthXP();
+}
+
+// ── HOME ──
+function renderHome() {
+  document.getElementById('home-streak').textContent = S.streak;
+  document.getElementById('home-xp').textContent = S.xp;
+}
+renderHome();
+
+// ── CLAUDE API ──
+const API = 'https://api.anthropic.com/v1/messages';
+async function claude(prompt, maxTokens = 900) {
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: maxTokens, messages: [{ role: 'user', content: prompt }] })
+  });
+  const data = await res.json();
+  return data.content.map(c => c.text || '').join('');
+}
+async function aiOut(prompt, outId, maxTokens = 900) {
+  const el = document.getElementById(outId);
+  el.style.display = 'block'; el.textContent = 'Generating...';
+  try { el.textContent = await claude(prompt, maxTokens); }
+  catch(e) { el.textContent = 'Error. Please try again.'; }
+}
+
+// ── QUIZ ──
+let quizTab = 'all';
+let quizAnswered = false;
+let quizQ = null;
+const quizTopicMap = { all: 'C#, ASP.NET Core, Entity Framework, LINQ, async/await, Dependency Injection', csharp: 'C# fundamentals, OOP, generics, delegates, LINQ, async/await', aspnet: 'ASP.NET Core, middleware, routing, filters, minimal APIs, DI', ef: 'Entity Framework Core, migrations, LINQ queries, relationships, performance' };
+
+function setQuizTab(t, el) {
+  quizTab = t;
+  document.querySelectorAll('#page-quiz .tabs .tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+async function fetchQuizQuestion() {
+  document.getElementById('quizArea').innerHTML = '<div class="empty">Loading question...</div>';
+  quizAnswered = false;
+  const topics = quizTopicMap[quizTab];
+  const qNum = (S.quizHistory.length % 15) + 1;
+  document.getElementById('q-num').textContent = qNum;
+  try {
+    const raw = await claude(`Generate a .NET interview question (mix of MCQ and open-ended) about: ${topics}. For a developer with 3 years experience testing their basics. Return ONLY valid JSON:
+{"type":"mcq","topic":"...","question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"..."}
+OR for open-ended:
+{"type":"open","topic":"...","question":"...","ideal_answer":"...","explanation":"..."}`);
+    const q = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    quizQ = q;
+    document.getElementById('q-topic').textContent = q.topic;
+    renderQuizQuestion(q);
+  } catch(e) {
+    document.getElementById('quizArea').innerHTML = '<div class="empty">Error loading. Try again.</div>';
+  }
+}
+
+function renderQuizQuestion(q) {
+  let html = `<div class="card"><p style="font-size:14px;font-weight:500;line-height:1.6;margin-bottom:14px;">${q.question}</p>`;
+  if (q.type === 'mcq') {
+    q.options.forEach((opt, i) => { html += `<button class="q-option" id="qopt${i}" onclick="checkMCQ(${i})">${opt}</button>`; });
+  } else {
+    html += `<textarea class="input" id="openAnswer" rows="4" placeholder="Type your answer..."></textarea><button class="btn btn-accent" onclick="checkOpen()">Submit</button>`;
+  }
+  html += `<div id="qFeedback" style="margin-top:12px;"></div></div>`;
+  document.getElementById('quizArea').innerHTML = html;
+}
+
+function checkMCQ(chosen) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const correct = quizQ.correct;
+  const isRight = chosen === correct;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('qopt'+i);
+    if (!el) continue;
+    el.disabled = true;
+    if (i === correct) el.classList.add('correct');
+    else if (i === chosen && !isRight) el.classList.add('wrong');
+  }
+  if (isRight) { S.quizScore += 10; S.quizCorrect++; }
+  S.quizHistory.push({ q: quizQ.question.substring(0,40), correct: isRight });
+  document.getElementById('q-score').textContent = S.quizScore;
+  document.getElementById('q-correct').textContent = S.quizCorrect;
+  document.getElementById('qFeedback').innerHTML = `<div class="tip" style="margin-top:8px;">${isRight ? '✅ Correct! ' : '❌ Not quite. '}${quizQ.explanation}</div><button class="btn btn-accent" style="margin-top:10px;" onclick="fetchQuizQuestion()">Next question →</button>`;
+  addXP(isRight ? 10 : 2);
+  save();
+}
+
+async function checkOpen() {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const ans = document.getElementById('openAnswer').value.trim();
+  if (!ans) { quizAnswered = false; return; }
+  document.getElementById('qFeedback').innerHTML = '<div style="font-size:13px;color:var(--text2);">Evaluating...</div>';
+  try {
+    const raw = await claude(`Question: "${quizQ.question}"\nIdeal answer: "${quizQ.ideal_answer}"\nUser answer: "${ans}"\nEvaluate. Return JSON: {"verdict":"correct|partial|incorrect","feedback":"2-3 sentences","score":0-10}`);
+    const ev = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    S.quizHistory.push({ q: quizQ.question.substring(0,40), correct: ev.verdict === 'correct' });
+    const icon = ev.verdict === 'correct' ? '✅' : ev.verdict === 'partial' ? '🟡' : '❌';
+    document.getElementById('qFeedback').innerHTML = `<div class="tip">${icon} ${ev.feedback}<br><br><strong>Model answer:</strong> ${quizQ.ideal_answer}</div><button class="btn btn-accent" style="margin-top:10px;" onclick="fetchQuizQuestion()">Next question →</button>`;
+    addXP(Math.round((ev.score/10)*10));
+    save();
+  } catch(e) { document.getElementById('qFeedback').innerHTML = '<div class="tip">Could not evaluate. <button class="btn btn-sm" onclick="fetchQuizQuestion()">Next →</button></div>'; }
+}
+
+function showQuizHistory() {
+  if (!S.quizHistory.length) { alert('No quiz history yet!'); return; }
+  const last5 = S.quizHistory.slice(-5).reverse();
+  document.getElementById('quizArea').innerHTML = `<div class="card"><div class="label">Recent questions</div>${last5.map(h => `<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;"><span>${h.correct ? '✅' : '❌'}</span><span style="color:var(--text2)">${h.q}...</span></div>`).join('')}</div><button class="btn" style="margin-top:8px;" onclick="fetchQuizQuestion()">New question</button>`;
+}
+
+// ── GROWTH ──
+let activePillarIdx = S.activePillar || 0;
+const pillars = ['DSA & Problem Solving','System Design','Clean Code','Analytical Thinking'];
+const pillarDetails = ['Arrays, hashmaps, recursion, sorting, two-pointers in C#','Scalability, caching, databases, microservices, API design','SOLID, design patterns, refactoring, naming, testing in .NET','Logical puzzles, estimation, debugging mysteries, trade-offs'];
+
+function renderGrowthXP() {
+  const xpInLevel = S.xp - ((S.level-1)*100);
+  const xpForNext = S.level * 100;
+  document.getElementById('g-level').textContent = S.level;
+  document.getElementById('g-xplabel').textContent = `${S.xp} / ${S.level*100} XP`;
+  document.getElementById('g-xpfill').style.width = Math.min(100, (xpInLevel/xpForNext)*100) + '%';
+  S.pillarXP.forEach((xp,i) => document.getElementById('gpxp'+i).textContent = xp + ' XP');
+}
+
+function selectPillar(i, el) {
+  activePillarIdx = i; S.activePillar = i; save();
+  document.querySelectorAll('.pillar').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  generateGrowthChallenge();
+}
+
+async function generateGrowthChallenge() {
+  document.getElementById('growthChallenge').innerHTML = '<div class="empty">Generating challenge...</div>';
+  const pillar = pillars[activePillarIdx];
+  try {
+    const raw = await claude(`Generate a 30-60 min daily growth challenge for a .NET developer (3 yrs exp) in: "${pillar}". ${pillarDetails[activePillarIdx]}. Return JSON: {"title":"...","topic":"...","challenge":"3-4 sentences, specific and practical","deliverable":"what they produce","tip":"one expert insight"}`);
+    const ch = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    document.getElementById('growthChallenge').innerHTML = `<div class="card card-accent">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;"><span class="badge badge-purple">${ch.topic}</span><span style="font-size:11px;color:var(--text3);">30-60 min</span></div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:8px;">${ch.title}</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:10px;">${ch.challenge}</div>
+      <div style="background:var(--surface2);border-radius:var(--r2);padding:10px;margin-bottom:8px;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">DELIVERABLE</div><div style="font-size:13px;">${ch.deliverable}</div></div>
+      <div style="background:var(--surface2);border-radius:var(--r2);padding:10px;margin-bottom:12px;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;">EXPERT TIP</div><div style="font-size:13px;">${ch.tip}</div></div>
+      <div class="btn-row" style="margin-top:0;"><button class="btn btn-accent btn-sm" onclick="markChallengeDone()">✓ Done (+20 XP)</button><button class="btn btn-sm" onclick="generateGrowthChallenge()">New challenge</button></div>
+    </div>`;
+  } catch(e) { document.getElementById('growthChallenge').innerHTML = '<div class="empty">Error. Tap a pillar to retry.</div>'; }
+}
+
+function markChallengeDone() {
+  S.pillarXP[activePillarIdx] += 20; S.streak++;
+  addXP(20); renderGrowthXP(); save();
+  document.querySelector('.btn-accent.btn-sm').textContent = '✓ Completed!';
+  document.querySelector('.btn-accent.btn-sm').disabled = true;
+}
+
+async function submitGrowthReflect() {
+  const text = document.getElementById('g-reflect').value.trim();
+  if (!text) return;
+  await aiOut(`A .NET developer wrote this reflection: "${text}". Give warm, specific feedback in 3 sentences. Acknowledge what they learned, suggest one next step, end with encouragement.`, 'g-reflect-out', 400);
+  addXP(10); renderGrowthXP(); save();
+}
+
+// ── XP ──
+function addXP(amt) {
+  S.xp += amt;
+  while (S.xp >= S.level * 100) S.level++;
+  save();
+}
+
+// ── CAREER ──
+let careerTab = 'list';
+function showCareerTab(t, el) {
+  ['list','add','email','prep'].forEach(n => document.getElementById('career-'+n).style.display = 'none');
+  document.getElementById('career-'+t).style.display = 'block';
+  document.querySelectorAll('#page-career .tabs .tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function addCareerApp() {
+  const company = document.getElementById('c-company').value.trim();
+  const role = document.getElementById('c-role').value.trim();
+  if (!company || !role) return;
+  S.apps.push({ id: Date.now(), company, role, type: document.getElementById('c-type').value, status: document.getElementById('c-status').value, location: document.getElementById('c-location').value || 'Remote', salary: document.getElementById('c-salary').value, notes: document.getElementById('c-notes').value, date: new Date().toLocaleDateString('en-IN') });
+  ['c-company','c-role','c-location','c-salary','c-notes'].forEach(id => document.getElementById(id).value = '');
+  save(); renderApps();
+  showCareerTab('list', document.querySelectorAll('#page-career .tabs .tab')[0]);
+  document.querySelectorAll('#page-career .tabs .tab')[0].classList.add('active');
+}
+
+function renderApps() {
+  const badgeMap = { Applied: 'badge-blue', Interview: 'badge-amber', Offer: 'badge-green', Rejected: 'badge-red' };
+  document.getElementById('c-total').textContent = S.apps.length;
+  document.getElementById('c-interview').textContent = S.apps.filter(a=>a.status==='Interview').length;
+  document.getElementById('c-offer').textContent = S.apps.filter(a=>a.status==='Offer').length;
+  document.getElementById('c-freelance').textContent = S.apps.filter(a=>a.type==='Freelance').length;
+  if (!S.apps.length) { document.getElementById('appList').innerHTML = '<div class="empty">No applications yet.</div>'; return; }
+  document.getElementById('appList').innerHTML = S.apps.map(a => `<div class="app-item">
+    <div class="app-name">${a.company} <span class="badge ${badgeMap[a.status]||'badge-blue'}">${a.status}</span>${a.type==='Freelance'?'<span class="badge badge-purple">Freelance</span>':''}</div>
+    <div class="app-meta">${a.role} · ${a.location} · ${a.date}</div>
+    ${a.salary?`<div class="app-meta">💰 ${a.salary}</div>`:''}
+    ${a.notes?`<div class="app-meta" style="font-style:italic;">${a.notes.substring(0,60)}...</div>`:''}
+    <div class="btn-row" style="margin-top:8px;">
+      <select style="font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text2);" onchange="updateAppStatus(${a.id},this.value)">
+        ${['Applied','Interview','Offer','Rejected'].map(s=>`<option ${a.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+      <button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" onclick="deleteApp(${a.id})">✕</button>
+    </div>
+  </div>`).join('');
+}
+
+function updateAppStatus(id, val) { const a = S.apps.find(x=>x.id===id); if(a){a.status=val; save(); renderApps();} }
+function deleteApp(id) { S.apps = S.apps.filter(a=>a.id!==id); save(); renderApps(); }
+
+async function runEmailAI() {
+  const mail = document.getElementById('email-text').value.trim();
+  const action = document.getElementById('email-action').value;
+  if (!mail) return;
+  const prompts = {
+    analyse: `Analyse this recruiter email:\n${mail}\n\nTell me: 1) Key message 2) Is this a good opportunity? 3) What to do next 4) Any red flags?`,
+    'reply-interest': `Draft a short, enthusiastic reply expressing interest. I'm a .NET dev with 3 years exp.\n\nEmail:\n${mail}`,
+    'reply-negotiate': `Draft a confident salary negotiation reply asking for 20% more.\n\nEmail:\n${mail}`,
+    'reply-followup': `Draft a polite follow-up since no reply in a week.\n\nContext:\n${mail}`,
+    'reply-decline': `Draft a polite professional decline keeping the door open.\n\nEmail:\n${mail}`
+  };
+  await aiOut(prompts[action], 'email-out');
+}
+
+async function runPrepAI() {
+  const role = document.getElementById('prep-role').value || 'Senior .NET Developer';
+  const type = document.getElementById('prep-type').value;
+  const prompts = {
+    technical: `10 technical interview Q&A for ${role}. Focus on C#, ASP.NET Core, EF, SQL. Include ideal answer for each.`,
+    behavioral: `8 behavioural interview questions for ${role} with STAR format answers and what the interviewer is testing.`,
+    system: `5 system design questions for ${role} with 3 years exp. Key points to cover for each.`,
+    salary: `Salary negotiation script for ${role} in Hyderabad and remote. Include: how to ask the number first, how to counter-offer, what to say when they push back.`
+  };
+  await aiOut(prompts[type], 'prep-out');
+}
+
+// ── WEEKEND ──
+const defaultBlocks = [
+  { time:'7:00 AM', title:'Vocal warmup', desc:'Humming scales, lip trills, breathing — 15 mins.', done: false },
+  { time:'8:00 AM', title:'Mindful breakfast + podcast', desc:'Communication or storytelling podcast. No scrolling.', done: false },
+  { time:'9:00 AM', title:'Music practice', desc:'Learn a song, practise chords, or music theory — 45 mins.', done: false },
+  { time:'10:30 AM', title:'Speaking drill', desc:'Record yourself on any topic for 3 mins. Play back, note filler words.', done: false },
+  { time:'12:00 PM', title:'Lunch + walk', desc:'Eat well, go outside. No screens. Let your mind wander.', done: false },
+  { time:'2:00 PM', title:'Creative project', desc:'Write, draw, compose — for pure joy. No goals.', done: false },
+  { time:'4:00 PM', title:'Storytelling / reading', desc:'30 mins of fiction or a communication book.', done: false },
+  { time:'6:00 PM', title:'Evening reflection', desc:'Journal for 10 mins. Close the loop on your week.', done: false },
+];
+if (!S.weekBlocks) S.weekBlocks = defaultBlocks.map(b=>({...b}));
+let weekTab = 'schedule';
+let exTab = 'music';
+let mood = '';
+
+function showWeekTab(t, el) {
+  ['schedule','exercises','aiplan','journal'].forEach(n => document.getElementById('week-'+n).style.display = 'none');
+  document.getElementById('week-'+t).style.display = 'block';
+  document.querySelectorAll('#page-weekend > .tabs .tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (t === 'exercises') showExTab('music', document.querySelector('#week-exercises .tabs .tab'));
+}
+
+function renderSchedule() {
+  const done = S.weekBlocks.filter(b=>b.done).length;
+  document.getElementById('w-progfill').style.width = Math.round((done/S.weekBlocks.length)*100)+'%';
+  document.getElementById('w-proglabel').textContent = `${done}/${S.weekBlocks.length}`;
+  document.getElementById('scheduleCard').innerHTML = `<div class="label">Your Sunday</div>` +
+    S.weekBlocks.map((b,i)=>`<div class="time-block">
+      <div class="check ${b.done?'done':''}" onclick="toggleWeekBlock(${i})">${b.done?'✓':''}</div>
+      <div class="time-tag">${b.time}</div>
+      <div class="block-body"><div class="block-title">${b.title}</div><div class="block-desc">${b.desc}</div></div>
+    </div>`).join('');
+}
+
+function toggleWeekBlock(i) { S.weekBlocks[i].done = !S.weekBlocks[i].done; save(); renderSchedule(); }
+
+async function generateWeekSchedule() {
+  await aiOut(`Suggest 3 alternative Sunday activity ideas for someone focusing on music/vocal, communication and creative hobbies. Each: activity name + 1-2 sentence description. Fun and varied.`, 'week-sched-out', 500);
+}
+
+const exercises = {
+  music: [
+    { title:'4-note melody improv', desc:'Pick 4 notes, improvise a 1-minute melody using only those. Record it 3 times.', dur:'20 min' },
+    { title:'Song deconstruction', desc:'Listen 3 times: melody, rhythm, then emotion. Write what makes it work.', dur:'30 min' },
+    { title:'Vowel resonance drill', desc:'Sing A-E-I-O-U on one note. Feel where resonance moves. Record and compare.', dur:'15 min' },
+  ],
+  comm: [
+    { title:'3-minute mirror talk', desc:'Talk about your day for exactly 3 mins without stopping. Watch your face and gestures.', dur:'10 min' },
+    { title:'Explain it simply', desc:'Explain dependency injection to a 10-year-old. Record it. Was it clear?', dur:'15 min' },
+    { title:'Vocal variety drill', desc:'Read a paragraph: once monotone, once with full emotion. Compare recordings.', dur:'15 min' },
+  ],
+  creative: [
+    { title:'10-min free write', desc:'Write continuously for 10 mins. Start with "Right now I feel..." No editing.', dur:'10 min' },
+    { title:'Observation sketch', desc:'Pick an object. Spend 15 mins describing it in extreme detail in writing or drawing.', dur:'15 min' },
+    { title:'Remix a lyric', desc:'Take a song you love. Rewrite one verse keeping rhythm but changing topic to your life.', dur:'20 min' },
+  ]
+};
+
+function showExTab(t, el) {
+  exTab = t;
+  document.querySelectorAll('#week-exercises > .tabs .tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('exList').innerHTML = exercises[t].map(e=>`<div class="card">
+    <div style="font-size:13px;font-weight:500;margin-bottom:4px;">${e.title} <span style="font-size:11px;color:var(--text3);">· ${e.dur}</span></div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;">${e.desc}</div>
+  </div>`).join('');
+}
+
+async function generateExercise() {
+  const labels = { music:'music and vocal training', comm:'communication and public speaking', creative:'creative expression' };
+  await aiOut(`Create one unique 15-30 min skill-building exercise for ${labels[exTab]}. Format: Title, Duration, 3-5 step instructions, what you'll gain. Practical and fun.`, 'ex-out', 500);
+}
+
+function pickMood(el, m) {
+  mood = m;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+async function generateAIPlan() {
+  const goals = document.getElementById('aiplan-goals').value;
+  await aiOut(`Plan a complete Sunday for someone who:\n- Mood: ${mood||'balanced'}\n- Skills: music/vocal, communication, creative hobbies\n- Goals: ${goals||'general growth and enjoyment'}\nCreate a time-blocked schedule from 7am to 9pm. Each block: time, activity, what to do, why it helps. Realistic and energising.`, 'aiplan-out', 800);
+}
+
+async function submitJournal() {
+  const wins = document.getElementById('j-wins').value.trim();
+  const struggles = document.getElementById('j-struggle').value.trim();
+  const next = document.getElementById('j-next').value.trim();
+  if (!wins) return;
+  await aiOut(`Sunday journal:\nWins: ${wins}\nStruggles: ${struggles}\nNext week: ${next}\n\nWrite a warm 3-4 sentence reflection. Acknowledge growth, reframe struggles, give one specific tip for next Sunday.`, 'journal-out', 400);
+  addXP(15); save();
+}
+
+// ── INVESTMENTS ──
+let investTab = 'portfolio';
+function showInvestTab(t, el) {
+  ['portfolio','add','sip','plan','learn'].forEach(n => document.getElementById('invest-'+n).style.display = 'none');
+  document.getElementById('invest-'+t).style.display = 'block';
+  document.querySelectorAll('#page-invest .tabs .tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (t === 'sip') calcSIP();
+}
+
+function fmtInr(n) {
+  if (n >= 10000000) return '₹' + (n/10000000).toFixed(2) + 'Cr';
+  if (n >= 100000) return '₹' + (n/100000).toFixed(2) + 'L';
+  if (n >= 1000) return '₹' + (n/1000).toFixed(1) + 'K';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+}
+
+function addInvestment() {
+  const name = document.getElementById('i-name').value.trim();
+  const amt = parseFloat(document.getElementById('i-amt').value)||0;
+  if (!name||!amt) return;
+  S.investments.push({ id:Date.now(), name, type:document.getElementById('i-type').value, mode:document.getElementById('i-mode').value, invested:amt, current:parseFloat(document.getElementById('i-cur').value)||amt, monthly:parseFloat(document.getElementById('i-monthly').value)||0, notes:document.getElementById('i-notes').value });
+  ['i-name','i-amt','i-cur','i-monthly','i-notes'].forEach(id=>document.getElementById(id).value='');
+  save(); renderPortfolio();
+  showInvestTab('portfolio', document.querySelectorAll('#page-invest .tabs .tab')[0]);
+  document.querySelectorAll('#page-invest .tabs .tab')[0].classList.add('active');
+}
+
+function renderPortfolio() {
+  const total = S.investments.reduce((s,i)=>s+i.invested,0);
+  const cur = S.investments.reduce((s,i)=>s+i.current,0);
+  const sip = S.investments.reduce((s,i)=>s+(i.monthly||0),0);
+  const gain = cur - total;
+  const gainPct = total ? ((gain/total)*100).toFixed(1) : 0;
+  document.getElementById('i-invested').textContent = fmtInr(total);
+  document.getElementById('i-current').textContent = fmtInr(cur);
+  document.getElementById('i-gain').innerHTML = `<span style="color:${gain>=0?'var(--green)':'var(--red)'}">${gain>=0?'+':''}${fmtInr(gain)} (${gainPct}%)</span>`;
+  document.getElementById('i-count').textContent = S.investments.length;
+  document.getElementById('i-sip').textContent = fmtInr(sip);
+
+  if (!S.investments.length) { document.getElementById('invList').innerHTML = '<div class="empty">No investments yet.</div>'; document.getElementById('allocCard').style.display='none'; return; }
+  document.getElementById('allocCard').style.display='block';
+
+  const types = ['Mutual Fund','Stock','FD','PPF'];
+  const colors = ['#6c63ff','#4ade80','#fbbf24','#a78bfa'];
+  document.getElementById('allocBars').innerHTML = types.map((t,ti)=>{
+    const amt = S.investments.filter(i=>i.type===t).reduce((s,i)=>s+i.current,0);
+    const pct = cur ? Math.round((amt/cur)*100) : 0;
+    if (!amt) return '';
+    return `<div class="alloc-row"><div class="alloc-label"><span>${t}</span><span>${pct}% · ${fmtInr(amt)}</span></div><div class="alloc-bar"><div class="alloc-fill" style="width:${pct}%;background:${colors[ti]};"></div></div></div>`;
+  }).join('');
+
+  const badgeMap = {'Mutual Fund':'badge-purple','Stock':'badge-green','FD':'badge-amber','PPF':'badge-blue'};
+  document.getElementById('invList').innerHTML = S.investments.map(inv=>{
+    const g = inv.current - inv.invested;
+    const gp = inv.invested ? ((g/inv.invested)*100).toFixed(1) : 0;
+    return `<div class="inv-item">
+      <div class="inv-name">${inv.name} <span class="badge ${badgeMap[inv.type]||'badge-purple'}">${inv.type}</span></div>
+      <div class="inv-meta">Invested: ${fmtInr(inv.invested)} · Now: ${fmtInr(inv.current)} · <span style="color:${g>=0?'var(--green)':'var(--red)'}">${g>=0?'+':''}${fmtInr(g)} (${gp}%)</span></div>
+      ${inv.monthly?`<div class="inv-meta">SIP: ${fmtInr(inv.monthly)}/mo</div>`:''}
+      ${inv.notes?`<div class="inv-meta" style="font-style:italic;">${inv.notes.substring(0,60)}</div>`:''}
+      <button class="btn btn-sm" style="color:var(--red);border-color:var(--red);margin-top:8px;" onclick="deleteInv(${inv.id})">Remove</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteInv(id) { S.investments = S.investments.filter(i=>i.id!==id); save(); renderPortfolio(); }
+
+function calcSIP() {
+  const amt = parseInt(document.getElementById('sip-amt').value);
+  const rate = parseInt(document.getElementById('sip-rate').value);
+  const yr = parseInt(document.getElementById('sip-yr').value);
+  document.getElementById('sip-amt-l').textContent = '₹'+amt.toLocaleString('en-IN');
+  document.getElementById('sip-rate-l').textContent = rate+'%';
+  document.getElementById('sip-yr-l').textContent = yr+' year'+(yr>1?'s':'');
+  const n = yr*12, r = rate/100/12;
+  const fv = amt*((Math.pow(1+r,n)-1)/r)*(1+r);
+  const invested = amt*n;
+  document.getElementById('sip-inv').textContent = fmtInr(invested);
+  document.getElementById('sip-ret').textContent = '+'+fmtInr(fv-invested);
+  document.getElementById('sip-tot').textContent = fmtInr(fv);
+  document.getElementById('sip-sub').textContent = `In ${yr} years, ₹${(amt*12).toLocaleString('en-IN')}/year grows to ${fmtInr(fv)} at ${rate}% p.a.`;
+}
+
+async function runInvestPlanner() {
+  const income = document.getElementById('p-income').value;
+  const expenses = document.getElementById('p-expenses').value;
+  const age = document.getElementById('p-age').value;
+  const risk = document.getElementById('p-risk').value;
+  const goal = document.getElementById('p-goal').value;
+  const action = document.getElementById('p-action').value;
+  const prompts = {
+    allocate: `I am ${age} years old, earning ₹${income}/month, spending ₹${expenses}/month, risk: ${risk}. Goal: ${goal}. Beginner Indian investor interested in mutual funds, stocks, FDs, PPF. Build a detailed monthly investment allocation plan with specific amounts, fund categories, and 80C options.`,
+    emergency: `I earn ₹${income}/month, spend ₹${expenses}/month. How much emergency fund, where to keep it, and how long to build it saving ₹${Math.round((income-expenses)*0.3)}/month?`,
+    tax: `Salaried Indian earning ₹${income}/month. Complete tax-saving strategy: 80C (ELSS, PPF, EPF, FD), 80D, NPS (80CCD), HRA, and other deductions. Show tax savings.`,
+    start: `Age ${age}, complete beginner, earning ₹${income}/month in India. Step-by-step action plan to start investing — opening accounts, choosing first SIP, specific amounts and first steps.`
+  };
+  await aiOut(prompts[action], 'plan-out');
+}
+
+// ── PWA INSTALL ──
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'block';
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+}
+
+// ── INIT ──
+renderSchedule();
+renderPortfolio();
+renderGrowthXP();
+calcSIP();
+renderApps();
+showExTab('music', null);
+</script>
+</body>
+</html>
